@@ -25,7 +25,7 @@ async function isValid(req, res, next) {
         }
 
         const categories = await connection.query('SELECT * FROM categories;');
-        const sameCategory = categories.rows.find(item => item.name === newCategory);
+        const sameCategory = categories.rows.find(item => item.name === newCategory.name);
 
         if(sameCategory) {
             return res.status(409).send('Esta categoria já existe!');

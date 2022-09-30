@@ -1,12 +1,13 @@
 import connection from "../connection/connection.js";
 
 async function hasGames(req, res, next) {
-    const search = `${req.query.name}%`;
+    let search = req.query.name;
     let games;
     try {
         if(!search) {
             games = await connection.query('SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId" = categories.id;');
         } else {
+            search = `${search}%`;
             games = await connection.query(`SELECT games.*, categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId" = categories.id WHERE upper(games.name) LIKE upper($1);`, [search]);
         }
             
@@ -32,7 +33,7 @@ async function isValid(req, res, next) {
         }
 
         const games = await connection.query('SELECT * FROM games;');
-        const sameGame = games.rows.find(item => item.name === newGame);
+        const sameGame = games.rows.find(item => item.name === newGame.name);
 
         if(sameGame) {
             return res.status(409).send('Este jogo já está cadastrado!');
