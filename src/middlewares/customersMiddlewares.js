@@ -25,24 +25,6 @@ async function hasCustomers(req, res, next) {
     next();
 }
 
-async function isClient(req, res) {
-    const { id } = req.params;
-
-    try {
-        const customer = await connection.query(`SELECT * FROM customers WHERE id = $1`, [id]);
-        if(!customer) {
-            res.status(404).send('Este cliente não esta cadastrado!');
-            return;
-        }
-        res.locals.customer = customer.rows;
-
-    } catch(error) {
-        res.status(500).send(error.message)
-    }
-
-    next();
-}
-
 function customerSchema(req, res, next) {
     const schema = joi.object({
         name: joi.string().empty().required(),
@@ -84,12 +66,12 @@ async function isValid(req, res, next) {
 async function isCustomer(req, res, next) {
     let { id } = req.params;
     try {
-        if(!id) {
+        const customer = await connection.query(`SELECT * FROM customers WHERE id = $1`, [id]);
+
+        if(!customer) {
             res.status(404).send('Não foi possível encontrar este cliente!');
             return;
         }
-
-        const customer = await connection.query(`SELECT * FROM customers WHERE id = $1`, [id])
 
         res.locals.customer = customer;
     } catch(error) {
